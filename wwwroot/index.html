@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .timer-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .timers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .timer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .timer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .timer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .timer-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timer-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-running {
+            background: #e8f5e8;
+            color: #2d5a2d;
+        }
+
+        .status-stopped {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .timer-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .time-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .timer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .timer-actions .btn {
+            flex: 1;
+            min-width: 80px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .timers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Таймер</h1>
+            <p>Создавайте и управляйте таймерами</p>
+        </div>
+
+        <div class="timer-form">
+            <h2 class="form-title">Создать новый таймер</h2>
+            <form id="timerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="timerName">Название</label>
+                        <input type="text" id="timerName" placeholder="Мой таймер" value="Таймер">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hours">Часы</label>
+                        <input type="number" id="hours" min="0" max="99" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="minutes">Минуты</label>
+                        <input type="number" id="minutes" min="0" max="59" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="seconds">Секунды</label>
+                        <input type="number" id="seconds" min="0" max="59" value="30">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary">Создать таймер</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="timersContainer">
+            <div class="empty-state">
+                <h3>Нет таймеров</h3>
+                <p>Создайте свой первый таймер выше</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TimerApp {
+            constructor() {
+                this.timers = [];
+                this.updateInterval = null;
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+                await this.loadTimers();
+                this.startUpdateInterval();
+            }
+
+            setupEventListeners() {
+                document.getElementById('timerForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createTimer();
+                });
+            }
+
+            async loadTimers() {
+                try {
+                    const response = await fetch('/api/timer');
+                    this.timers = await response.json();
+                    this.renderTimers();
+                } catch (error) {
+                    console.error('Ошибка загрузки таймеров:', error);
+                }
+            }
+
+            async createTimer() {
+                const name = document.getElementById('timerName').value;
+                const hours = parseInt(document.getElementById('hours').value) || 0;
+                const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                    alert('Пожалуйста, установите время больше нуля');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/timer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name, hours, minutes, seconds })
+                    });
+
+                    if (response.ok) {
+                        await this.loadTimers();
+                        this.resetForm();
+                    } else {
+                        const error = await response.text();
+                        alert('Ошибка создания таймера: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Ошибка создания таймера:', error);
+                    alert('Ошибка создания таймера');
+                }
+            }
+
+            resetForm() {
+                document.getElementById('timerName').value = 'Таймер';
+                document.getElementById('hours').value = '0';
+                document.getElementById('minutes').value = '0';
+                document.getElementById('seconds').value = '30';
+            }
+
+            async startTimer(id) {
+                try {
+                    const response = await fetch(`/api/timer/${id}/start`, { method: 'POST' });
+                    if (response.ok) {
+                        await this.loadTimers();
+                    }
+                } catch (error) {
+                    console.error('Ошибка запуска таймера:', error);
+                }
+            }
+
+            async stopTimer(id) {
+                try {
+                    const response = await fetch(`/api/timer/${id}/stop`, { method: 'POST' });
+                    if (response.ok) {
+                        await this.loadTimers();
+                    }
+                } catch (error) {
+                    console.error('Ошибка остановки таймера:', error);
+                }
+            }
+
+            async resetTimer(id) {
+                try {
+                    const response = await fetch(`/api/timer/${id}/reset`, { method: 'POST' });
+                    if (response.ok) {
+                        await this.loadTimers();
+                    }
+                } catch (error) {
+                    console.error('Ошибка сброса таймера:', error);
+                }
+            }
+
+            async deleteTimer(id) {
+                if (!confirm('Вы уверены, что хотите удалить этот таймер?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/timer/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        await this.loadTimers();
+                    }
+                } catch (error) {
+                    console.error('Ошибка удаления таймера:', error);
+                }
+            }
+
+            async editTimer(id) {
+                const timer = this.timers.find(t => t.id === id);
+                if (!timer) return;
+
+                const name = prompt('Название таймера:', timer.name);
+                if (name === null) return;
+
+                const hours = parseInt(prompt('Часы:', Math.floor(timer.duration.hours)) || 0);
+                const minutes = parseInt(prompt('Минуты:', timer.duration.minutes) || 0);
+                const seconds = parseInt(prompt('Секунды:', timer.duration.seconds) || 0);
+
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                    alert('Время должно быть больше нуля');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/timer/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name, hours, minutes, seconds })
+                    });
+
+                    if (response.ok) {
+                        await this.loadTimers();
+                    } else {
+                        const error = await response.text();
+                        alert('Ошибка редактирования таймера: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Ошибка редактирования таймера:', error);
+                }
+            }
+
+            renderTimers() {
+                const container = document.getElementById('timersContainer');
+                
+                if (this.timers.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>Нет таймеров</h3>
+                            <p>Создайте свой первый таймер выше</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="timers-grid">
+                        ${this.timers.map(timer => this.renderTimerCard(timer)).join('')}
+                    </div>
+                `;
+
+                // Добавляем обработчики событий для кнопок
+                this.timers.forEach(timer => {
+                    document.getElementById(`start-${timer.id}`)?.addEventListener('click', () => this.startTimer(timer.id));
+                    document.getElementById(`stop-${timer.id}`)?.addEventListener('click', () => this.stopTimer(timer.id));
+                    document.getElementById(`reset-${timer.id}`)?.addEventListener('click', () => this.resetTimer(timer.id));
+                    document.getElementById(`edit-${timer.id}`)?.addEventListener('click', () => this.editTimer(timer.id));
+                    document.getElementById(`delete-${timer.id}`)?.addEventListener('click', () => this.deleteTimer(timer.id));
+                });
+            }
+
+            renderTimerCard(timer) {
+                let progress = 0;
+                if (timer.isCompleted) {
+                    progress = 100;
+                } else if (timer.isRunning) {
+                    const durationSeconds = timer.duration.totalSeconds || timer.duration.ticks / 10000000;
+                    const remainingSeconds = timer.remainingTime.totalSeconds || timer.remainingTime.ticks / 10000000;
+                    progress = ((durationSeconds - remainingSeconds) / durationSeconds) * 100;
+                }
+
+                const statusClass = timer.isCompleted ? 'status-completed' : 
+                    timer.isRunning ? 'status-running' : 'status-stopped';
+
+                return `
+                    <div class="timer-card">
+                        <div class="timer-header">
+                            <div class="timer-name">${timer.name}</div>
+                            <div class="timer-status ${statusClass}">${timer.status}</div>
+                        </div>
+                        
+                        <div class="timer-display">
+                            <div class="time-display">${this.formatTime(timer.remainingTime)}</div>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        
+                        <div class="timer-actions">
+                            ${!timer.isRunning && !timer.isCompleted ? 
+                                `<button id="start-${timer.id}" class="btn btn-success">Старт</button>` : ''}
+                            ${timer.isRunning ? 
+                                `<button id="stop-${timer.id}" class="btn btn-danger">Стоп</button>` : ''}
+                            ${!timer.isRunning ? 
+                                `<button id="reset-${timer.id}" class="btn btn-warning">Сброс</button>` : ''}
+                            <button id="edit-${timer.id}" class="btn btn-info">Изменить</button>
+                            <button id="delete-${timer.id}" class="btn btn-danger">Удалить</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            formatTime(timeSpan) {
+                // Проверяем, является ли timeSpan объектом или строкой
+                let hours, minutes, seconds;
+                
+                if (typeof timeSpan === 'string') {
+                    // Если это строка, парсим её
+                    const parts = timeSpan.split(':');
+                    if (parts.length === 3) {
+                        hours = parseInt(parts[0]);
+                        minutes = parseInt(parts[1]);
+                        seconds = parseInt(parts[2]);
+                    } else {
+                        hours = 0;
+                        minutes = parseInt(parts[0]);
+                        seconds = parseInt(parts[1]);
+                    }
+                } else if (timeSpan && typeof timeSpan === 'object') {
+                    // Если это объект TimeSpan
+                    hours = Math.floor(timeSpan.totalHours || 0);
+                    minutes = timeSpan.minutes || 0;
+                    seconds = timeSpan.seconds || 0;
+                } else {
+                    return '00:00';
+                }
+                
+                if (hours > 0) {
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }
+
+            startUpdateInterval() {
+                this.updateInterval = setInterval(async () => {
+                    const runningTimers = this.timers.filter(t => t.isRunning);
+                    if (runningTimers.length > 0) {
+                        await this.loadTimers();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            new TimerApp();
+        });
+    </script>
+</body>
+</html> 
